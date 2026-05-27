@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Producto - Armando Variedades</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    }
+                }
+            }
+        }
+
+        window.onload = function() {
+            if(mensaje){
+                alert(mensaje);
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap');
+    </style>
+</head>
+<body class="font-sans bg-gray-50 text-gray-800 antialiased min-h-screen flex items-center justify-center p-6">
+
+    <div class="bg-white p-8 md:p-12 shadow-sm border border-gray-100 max-w-lg w-full">
+        <h1 class="font-serif text-3xl font-bold text-gray-900 mb-8 tracking-wide">Registrar Producto</h1>
+        
+        <form action="/crearProducto" method="post" class="space-y-6">
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-widest text-gray-500 mb-2">Nombre del Producto</label>
+                <input type="text" name="nombre" class="w-full border-b border-gray-300 py-2 focus:border-black outline-none transition duration-300" placeholder="Ej: Chaqueta de cuero" required>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-widest text-gray-500 mb-2">Descripción</label>
+                <textarea name="descripcion" rows="3" class="w-full border-b border-gray-300 py-2 focus:border-black outline-none transition duration-300" placeholder="Breve descripción del producto..." required></textarea>
+            </div>
+
+            <div class="grid grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-widest text-gray-500 mb-2">Precio ($)</label>
+                    <input type="number" name="precio" class="w-full border-b border-gray-300 py-2 focus:border-black outline-none transition duration-300" placeholder="0.00" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-widest text-gray-500 mb-2">Stock</label>
+                    <input type="number" name="stock" class="w-full border-b border-gray-300 py-2 focus:border-black outline-none transition duration-300" placeholder="0" required>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-widest text-gray-500 mb-2">URL de la imagen</label>
+                <input type="text" name="imagen" class="w-full border-b border-gray-300 py-2 focus:border-black outline-none transition duration-300" placeholder="Ej: Chaqueta de cuero" required>
+            </div>
+
+            <button type="submit" class="w-full bg-gray-900 text-white py-4 font-medium hover:bg-black transition duration-300 tracking-wider uppercase text-sm mt-4">
+                Guardar Producto
+            </button>
+        </form>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mixtas - E-commerce</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    }
+                }
+            }
+        }
+
+
+        window.onload = () => {
+            console.log('Bienvenido a Mixtas');
+
+            fetch('/obtenerProductos')
+                .then(response => response.json())
+                .then(data => {
+                    const productos = document.getElementById('productos');
+                    data.forEach(producto => {
+                        const productoHTML = `
+                            <div class="group cursor-pointer">
+                                <div class="bg-[#f4f4f4] aspect-square flex items-center justify-center mb-4 overflow-hidden relative">
+                                    <img src="${producto.imagen}" alt="Polo" class="object-cover w-[80%] mix-blend-multiply group-hover:scale-105 transition duration-500">
+                                </div>
+                                <div class="text-xs text-gray-400 uppercase tracking-wider mb-1">${producto.nombre}</div>
+                                <h3 class="text-sm font-medium text-gray-800 mb-1">${producto.descripcion}</h3>
+                                <p class="text-sm text-gray-600">${producto.precio}</p>
+                                <button class="mt-4 bg-black text-white py-2 px-4 rounded-md hover:bg-gray-800 transition duration-300 ease-in-out">Agregar al Carrito</button>
+                            </div>
+                        `;
+                        productos.innerHTML += productoHTML;
+                    });
+                })
+                .catch(error => {
+                    console.error('Error al obtener los productos:', error);
+                });
+        }
+    </script>
+    <style>
+        /* Importar fuentes de Google */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap');
+    </style>
+</head>
+<body class="font-sans text-gray-800 antialiased bg-white">
+
+    <div class="relative w-full h-[80vh] md:h-screen bg-cover bg-center bg-blue-300" style="background-image: url('https://images.unsplash.com/photo-1617331713295-1650fdb31180?q=80&w=2070');">
+        
+        <header class="absolute top-0 w-full flex items-center justify-between px-6 py-8 text-white z-10">
+            <nav class="hidden md:flex gap-6 text-sm font-medium">
+                <a href="#" class="hover:text-gray-200">Home</i></a>
+                <a href="/registrar" class="hover:text-gray-200">Registrar Articulos</i></a>
+                <a href="#" class="hover:text-gray-200">Pages</i></a>
+                <a href="#" class="hover:text-gray-200">Blog</i></a>
+                <a href="#" class="hover:text-gray-200">Contact Us</a>
+            </nav>
+            
+            <div class="text-3xl font-serif font-bold tracking-wider">
+                Armando Variedades
+            </div>
+            
+            <div class="flex items-center gap-5">
+                <a href="#"><i class="fa-regular fa-user"></i></a>
+                <a href="#"><i class="fa-solid fa-magnifying-glass"></i></a>
+                <a href="#"><i class="fa-regular fa-heart"></i></a>
+                <a href="#" class="relative">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                    <span class="absolute -top-2 -right-2 bg-black text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">0</span>
+                </a>
+            </div>
+        </header>
+
+        <div class="absolute inset-0 flex items-center px-8 md:px-24">
+            <button class="absolute left-4 md:left-8 bg-white/80 p-3 rounded-full hover:bg-white text-gray-800 transition">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+
+            <div class="text-white max-w-lg mt-20">
+                <p class="text-xs tracking-[0.2em] font-semibold mb-2 uppercase">Urban Edge</p>
+                <h1 class="text-4xl md:text-6xl font-bold leading-tight mb-8">Jackets for the<br>Modern Man</h1>
+                <a href="#" class="bg-white text-gray-900 font-medium px-8 py-3 hover:bg-gray-100 transition inline-block">Discovery Now</a>
+            </div>
+
+            <button class="absolute right-4 md:right-8 bg-white/80 p-3 rounded-full hover:bg-white text-gray-800 transition">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <section class="max-w-7xl mx-auto px-4 py-20">
+        <div class="text-center mb-10">
+            <h2 class="text-3xl md:text-4xl font-medium mb-6">New Arrivals</h2>
+<!--             
+            <div class="flex flex-wrap justify-center gap-6 text-sm font-medium tracking-wide text-gray-400">
+                <button class="text-black border-b border-black pb-1">WOMEN</button>
+                <button class="hover:text-black transition">MEN</button>
+                <button class="hover:text-black transition">SHOES</button>
+                <button class="hover:text-black transition">BAGS</button>
+                <button class="hover:text-black transition">ACCESSORIES</button>
+            </div> -->
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12" id="productos">
+            
+            <!-- <div class="group cursor-pointer">
+                <div class="bg-[#f4f4f4] aspect-square flex items-center justify-center mb-4 overflow-hidden relative">
+                    <img src="https://via.placeholder.com/400x400/f4f4f4/333333?text=Polo+Shirt" alt="Polo" class="object-cover w-[80%] mix-blend-multiply group-hover:scale-105 transition duration-500">
+                </div>
+                <div class="text-xs text-gray-400 uppercase tracking-wider mb-1">Jackets</div>
+                <h3 class="text-sm font-medium text-gray-800 mb-1">adidas X Pop Polo shirt, navy / blue</h3>
+                <p class="text-sm text-gray-600">$69.99</p>
+            </div> -->
+
+        </div>
+    </section>
+<!-- 
+    <section class="max-w-7xl mx-auto px-4 pb-20">
+        <div class="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-4 h-auto md:h-[600px]">
+            
+            <div class="md:col-span-2 md:row-span-2 bg-[#eaeef3] p-10 flex flex-col justify-between relative overflow-hidden h-[400px] md:h-full">
+                <div class="relative z-10 max-w-xs">
+                    <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-3">Ethereal Elegance</p>
+                    <h3 class="text-3xl font-serif font-bold text-gray-900 leading-tight mb-6">Where Dreams Meet Couture</h3>
+                    <a href="#" class="bg-white px-6 py-2 text-sm font-medium hover:bg-gray-900 hover:text-white transition">Shop Now</a>
+                </div>
+                <img src="https://via.placeholder.com/500x700/eaeef3/999999?text=Model+1" class="absolute bottom-0 right-0 h-[80%] object-cover object-bottom mix-blend-multiply" alt="Model">
+            </div>
+
+            <div class="md:col-span-2 md:row-span-1 bg-[#f4f5f0] p-8 flex items-center justify-between relative overflow-hidden h-[300px] md:h-full">
+                <div class="relative z-10 max-w-[200px]">
+                    <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-2">Radiant Reverie</p>
+                    <h3 class="text-xl font-serif font-bold text-gray-900 leading-tight mb-5">Enchanting Styles for Every Woman</h3>
+                    <a href="#" class="bg-white px-5 py-2 text-xs font-medium hover:bg-gray-900 hover:text-white transition shadow-sm">Shop Now</a>
+                </div>
+                <img src="https://via.placeholder.com/400x400/f4f5f0/999999?text=Model+2" class="absolute bottom-0 right-0 h-full object-cover mix-blend-multiply" alt="Model">
+            </div>
+
+            <div class="md:col-span-1 md:row-span-1 bg-[#f2f2f2] p-6 flex flex-col items-center justify-center relative h-[300px] md:h-full text-center">
+                 <div class="z-10 w-full mb-4">
+                    <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-1 text-right">Urban Strides</p>
+                    <h3 class="text-lg font-serif font-bold text-gray-900 leading-tight mb-2 text-right">Chic Footwear for City Living</h3>
+                 </div>
+                 <img src="https://via.placeholder.com/300x300/f2f2f2/999999?text=Sneaker" class="w-full h-auto object-contain mix-blend-multiply" alt="Shoe">
+                 <a href="#" class="bg-white px-4 py-2 text-[10px] font-medium absolute bottom-6 right-6 hover:bg-gray-900 hover:text-white transition shadow-sm">Shop Now</a>
+            </div>
+
+            <div class="md:col-span-1 md:row-span-1 bg-[#607b96] text-white p-8 flex flex-col justify-center items-center text-center h-[300px] md:h-full relative">
+                <h3 class="text-sm font-medium mb-2">Trendsetting Bags for Her</h3>
+                <div class="text-6xl font-serif font-bold mb-6">50<span class="text-3xl">%</span></div>
+                <a href="#" class="bg-white text-gray-900 px-6 py-2 text-xs font-medium hover:bg-gray-100 transition">Shop Now</a>
+            </div>
+
+        </div>
+    </section> -->
+
+</body>
+</html>
