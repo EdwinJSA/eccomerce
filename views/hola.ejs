@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mixtas - E-commerce</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    }
+                }
+            }
+        }
+
+        // --- Lógica del Carrito ---
+        function agregarAlCarrito(id) {
+            let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+            
+            // Corregido: usando 'id' que viene del parámetro
+            const productoExistente = carrito.find(item => item.id === id);
+
+            if (productoExistente) {
+                productoExistente.cantidad += 1;
+            } else {
+                carrito.push({ id: id, cantidad: 1 });
+            }
+
+            localStorage.setItem('carrito', JSON.stringify(carrito));
+            actualizarContadorCarrito();
+            console.log('Producto agregado:', id);
+        }
+
+        function actualizarContadorCarrito() {
+            const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+            const total = carrito.reduce((sum, item) => sum + item.cantidad, 0);
+            const contadorElemento = document.querySelector('.fa-bag-shopping + span');
+            if (contadorElemento) {
+                contadorElemento.textContent = total;
+            }
+        }
+
+        // --- Carga Inicial ---
+        window.onload = () => {
+            console.log('Bienvenido a Mixtas');
+            
+            // Actualizar contador apenas cargue la página
+            actualizarContadorCarrito();
+
+            fetch('/obtenerProductos')
+                .then(response => response.json())
+                .then(data => {
+                    const productos = document.getElementById('productos');
+                    data.forEach(producto => {
+                        const productoHTML = `
+                            <div class="group cursor-pointer">
+                                <div class="bg-[#f4f4f4] aspect-square flex items-center justify-center mb-4 overflow-hidden relative">
+                                    <img src="${producto.imagen}" alt="${producto.nombre}" class="object-cover w-[80%] mix-blend-multiply group-hover:scale-105 transition duration-500">
+                                </div>
+                                <div class="text-xs text-gray-400 uppercase tracking-wider mb-1">${producto.nombre}</div>
+                                <h3 class="text-sm font-medium text-gray-800 mb-1">${producto.descripcion}</h3>
+                                <p class="text-sm text-gray-600">${producto.precio}</p>
+                                <button onclick="agregarAlCarrito('${producto.id}')" class="mt-4 bg-black text-white py-2 px-4 rounded-md hover:bg-gray-800 transition duration-300 ease-in-out">
+                                    Agregar al Carrito
+                                </button>
+                            </div>
+                        `;
+                        productos.innerHTML += productoHTML;
+                    });
+                })
+                .catch(error => {
+                    console.error('Error al obtener los productos:', error);
+                });
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap');
+    </style>
+</head>
+<body class="font-sans text-gray-800 antialiased bg-white">
+
+    <div class="relative w-full h-[80vh] md:h-screen bg-cover bg-center bg-blue-300" style="background-image: url('https://images.unsplash.com/photo-1617331713295-1650fdb31180?q=80&w=2070');">
+        
+        <header class="absolute top-0 w-full flex items-center justify-between px-6 py-8 text-white z-10">
+            <nav class="hidden md:flex gap-6 text-sm font-medium">
+                <a href="#" class="hover:text-gray-200">Home</a>
+                <a href="/registrar" class="hover:text-gray-200">Registrar Articulos</a>
+                <a href="#" class="hover:text-gray-200">Pages</a>
+                <a href="#" class="hover:text-gray-200">Blog</a>
+                <a href="#" class="hover:text-gray-200">Contact Us</a>
+            </nav>
+            
+            <div class="text-3xl font-serif font-bold tracking-wider">
+                Armando Variedades
+            </div>
+            
+            <div class="flex items-center gap-5">
+                <a href="#"><i class="fa-regular fa-user"></i></a>
+                <a href="#"><i class="fa-solid fa-magnifying-glass"></i></a>
+                <a href="#"><i class="fa-regular fa-heart"></i></a>
+                <a href="#" class="relative">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                    <span class="absolute -top-2 -right-2 bg-black text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">0</span>
+                </a>
+            </div>
+        </header>
+
+        <div class="absolute inset-0 flex items-center px-8 md:px-24">
+            <button class="absolute left-4 md:left-8 bg-white/80 p-3 rounded-full hover:bg-white text-gray-800 transition">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+
+            <div class="text-white max-w-lg mt-20">
+                <p class="text-xs tracking-[0.2em] font-semibold mb-2 uppercase">Urban Edge</p>
+                <h1 class="text-4xl md:text-6xl font-bold leading-tight mb-8">Jackets for the<br>Modern Man</h1>
+                <a href="#" class="bg-white text-gray-900 font-medium px-8 py-3 hover:bg-gray-100 transition inline-block">Discovery Now</a>
+            </div>
+
+            <button class="absolute right-4 md:right-8 bg-white/80 p-3 rounded-full hover:bg-white text-gray-800 transition">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <section class="max-w-7xl mx-auto px-4 py-20">
+        <div class="text-center mb-10">
+            <h2 class="text-3xl md:text-4xl font-medium mb-6">New Arrivals</h2>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12" id="productos">
+        </div>
+    </section>
+</body>
+</html>

@@ -24,12 +24,103 @@ app.get('/', (req, res) => {
     res.render('index'); // No need to include '.ejs' if the engine is set
 });
 
+app.get('/carrito', (req, res) => {
+    res.render('carrito'); // No need to include '.ejs' if the engine is set
+});
+
+app.get('/historial', (req, res) => {
+    res.render('historial'); // No need to include '.ejs' if the engine is set
+});
+
 app.get('/registrar', (req, res) => {
     res.render('registar');
 })
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
+});
+
+
+// ===================== COMPRAS ==========================
+app.get('/verProductosPorCompra/:id', async (req, res) => {
+    const query = 
+        `
+        SELECT 
+            a.nombre AS articulo,
+            a.imagen AS imagen,
+            dc.cantidad AS cantidad,
+            a.precio AS precio_unitario
+        FROM detalle_compras dc
+        JOIN articulos a ON dc.articulos_id = a.id
+        WHERE dc.compras_id = ?;
+        `;
+    const db = await abrirDB();
+    const compras = await db.all(query, [req.params.id]);
+    console.table(compras);
+    return res.json(compras);
+})
+
+
+
+app.get('/historialCompras', async (req, res) => {
+    const query = `
+        SELECT 
+            compras.id AS compra_id,
+            usuarios.nombre AS nombre_usuario,
+            compras.total,
+            compras.fecha
+        FROM compras
+        JOIN usuarios ON compras.usuarios_id = usuarios.id
+    `;
+    const db = await abrirDB();
+    const compras = await db.all(query);
+    return res.json(compras);
+});
+
+
+// ==================== PAGOS ==================================
+app.post('/procesarPago', async (req, res) => {
+    try {
+        const { usuario, carrito } = req.body;
+        const db = await abrirDB();
+
+        // 1. Buscar si el usuario ya existe para no duplicarlo
+        let user = await db.get('SELECT id FROM usuarios WHERE nombre = ?', [usuario]);
+        let userId;
+
+        if (!user) {
+            const nuevoUsuario = await create('usuarios', { 
+                nombre: usuario,
+                email: `${usuario}@example.com`,
+                password: `${usuario}password`
+            });
+            userId = nuevoUsuario.id;
+            console.log('Nuevo usuario creado con ID:', userId);
+        } else {
+            userId = user.id;
+            console.log('Usuario existente encontrado con ID:', userId);
+        }
+
+        const total = carrito.reduce((acumulador, producto) => {
+            return acumulador + (producto.precio * producto.cantidad);
+        }, 0);
+
+        const fecha = new Date().toISOString();
+
+       let compra = await db.run('INSERT INTO compras (usuarios_id, fecha, total) VALUES (?, ?, ?)', [userId, fecha, total]);
+
+        const compraId = compra.lastID;
+
+        carrito.forEach(async (producto) => {
+            await db.run('INSERT INTO detalle_compras (compras_id, articulos_id, cantidad) VALUES (?, ?, ?)', [compraId, producto.id, producto.cantidad]);
+        });
+        
+        res.json({ success: true });
+
+    } catch (error) {
+        console.error('Error al procesar el pago:', error);
+        res.status(500).json({ success: false, message: 'Error interno del servidor' });
+    }
 });
 
 // ==================== USUARIOS ===============================
@@ -132,3 +223,6 @@ app.post('/crearCompra', async (req, res) => {
         res.status(500).json({ error: 'Error al procesar la compra', details: error.message });
     }
 });
+
+
+export default app; 

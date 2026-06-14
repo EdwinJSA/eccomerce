@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mixtas - E-commerce</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        // --- Lógica del Carrito ---
+        function agregarAlCarrito(id, nombre, precio) {
+            let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+            const index = carrito.findIndex(item => item.id === id);
+
+            if (index > -1) {
+                carrito[index].cantidad += 1;
+            } else {
+                carrito.push({ id, nombre, precio, cantidad: 1 });
+            }
+
+            localStorage.setItem('carrito', JSON.stringify(carrito));
+            actualizarContador();
+            alert('Producto agregado al carrito');
+        }
+
+        function actualizarContador() {
+            const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+            const total = carrito.reduce((sum, item) => sum + item.cantidad, 0);
+            document.querySelector('.contador-carrito').textContent = total;
+        }
+
+        function abrirCarrito() {
+            const modal = document.getElementById('modalCarrito');
+            const lista = document.getElementById('listaItems');
+            const totalDisplay = document.getElementById('totalPrecio');
+            const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+            
+            lista.innerHTML = '';
+            let total = 0;
+
+            carrito.forEach(item => {
+                total += item.precio * item.cantidad;
+                lista.innerHTML += `
+                    <div class="flex justify-between items-center py-2 border-b">
+                        <div>
+                            <p class="font-medium">${item.nombre}</p>
+                            <p class="text-xs text-gray-500">Cant: ${item.cantidad}</p>
+                        </div>
+                        <p>$${(item.precio * item.cantidad).toFixed(2)}</p>
+                    </div>
+                `;
+            });
+            totalDisplay.textContent = `$${total.toFixed(2)}`;
+            modal.classList.remove('hidden');
+        }
+
+        function cerrarCarrito() {
+            document.getElementById('modalCarrito').classList.add('hidden');
+        }
+
+        window.onload = () => {
+            actualizarContador();
+            fetch('/obtenerProductos')
+                .then(res => res.json())
+                .then(data => {
+                    const cont = document.getElementById('productos');
+                    data.forEach(p => {
+                        cont.innerHTML += `
+                            <div class="group cursor-pointer">
+                                <div class="bg-[#f4f4f4] aspect-square flex items-center justify-center mb-4 overflow-hidden relative">
+                                    <img src="${p.imagen}" class="object-cover w-[80%]">
+                                </div>
+                                <h3 class="text-sm font-medium">${p.nombre}</h3>
+                                <p class="text-sm text-gray-600">$${p.precio}</p>
+                                <button onclick="agregarAlCarrito('${p.id}', '${p.nombre}', ${p.precio})" class="mt-2 bg-black text-white px-4 py-2 text-xs uppercase">Agregar</button>
+                            </div>
+                        `;
+                    });
+                });
+        }
+    </script>
+</head>
+<body class="bg-white">
+
+    <!-- Header -->
+    <header class="flex justify-between px-10 py-6 items-center">
+        <div class="text-2xl font-bold">Armando Variedades</div>
+        <button onclick="abrirCarrito()" class="relative">
+            <i class="fa-solid fa-bag-shopping text-xl"></i>
+            <span class="contador-carrito absolute -top-2 -right-2 bg-black text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">0</span>
+        </button>
+    </header>
+
+    <!-- Lista de Productos -->
+    <section class="max-w-7xl mx-auto p-10 grid grid-cols-4 gap-6" id="productos"></section>
+
+    <!-- Modal Carrito (Embebido) -->
+    <div id="modalCarrito" class="hidden fixed inset-0 bg-black/50 z-50 flex justify-end">
+        <div class="bg-white w-96 h-full p-6 shadow-2xl">
+            <div class="flex justify-between mb-6">
+                <h2 class="text-xl font-bold">Tu Carrito</h2>
+                <button onclick="cerrarCarrito()" class="text-2xl">&times;</button>
+            </div>
+            <div id="listaItems"></div>
+            <div class="mt-6 border-t pt-4 font-bold text-lg flex justify-between">
+                <span>Total:</span>
+                <span id="totalPrecio">$0.00</span>
+            </div>
+            <button class="w-full bg-black text-white py-3 mt-4">Pagar</button>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial de Compras</title>
+    <!-- Tailwind CSS para el estilo moderno -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto bg-white p-6 md:p-8 rounded-2xl shadow-xl border border-gray-100">
+        <!-- Título -->
+        <h1 class="text-3xl font-bold mb-8 font-serif text-gray-800">Historial de Compras</h1>
+        
+        <!-- Tabla -->
+        <div class="overflow-hidden rounded-xl border border-gray-200 shadow-sm">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase">ID</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase" hidden>ID Usuario</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase">Usuario</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase">Fecha</th>
+                        <th class="px-6 py-4 text-right text-xs font-bold text-gray-600 uppercase">Total</th>
+                        <th class="px-6 py-4 text-right text-xs font-bold text-gray-600 uppercase">Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaCuerpo" class="bg-white divide-y divide-gray-100">
+                    <!-- Los datos se inyectarán aquí mediante JS -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Navegación -->
+        <div class="mt-8">
+            <a href="/" class="text-indigo-600 font-semibold hover:text-indigo-800 transition-colors">
+                &larr; Volver a la tienda
+            </a>
+        </div>
+    </div>
+
+    <!-- Modal de Productos -->
+    <div id="modalProductos" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">Detalle de Compra</h2>
+                <button onclick="cerrarModal()" class="text-gray-500 hover:text-black text-2xl">&times;</button>
+            </div>
+            <div id="listaProductos" class="space-y-3 max-h-96 overflow-y-auto">
+                <!-- Los productos se cargarán aquí -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Lógica de Frontend -->
+    <script>
+        async function verProductos(compraId) {
+            const modal = document.getElementById('modalProductos');
+            const lista = document.getElementById('listaProductos');
+            
+            modal.classList.remove('hidden');
+            lista.innerHTML = 'Cargando productos...';
+
+            try {
+                const response = await fetch(`/verProductosPorCompra/${compraId}`);
+                const productos = await response.json(); // Aquí recibes el JSON que mostraste
+
+                lista.innerHTML = productos.map(p => `
+                    <div class="flex items-center gap-4 p-3 border-b hover:bg-gray-50 transition-colors">
+                        <!-- Imagen con fallback a un placeholder si es null -->
+                        <img src="${p.imagen || 'https://via.placeholder.com/50'}" 
+                            alt="${p.articulo}" 
+                            class="w-12 h-12 object-cover rounded-lg border border-gray-200">
+                        
+                        <div class="flex-1">
+                            <p class="font-bold text-gray-800 text-sm">${p.articulo}</p>
+                            <p class="text-xs text-gray-500">Cantidad: ${p.cantidad}</p>
+                        </div>
+                        
+                        <div class="text-right">
+                            <p class="font-bold text-sm text-gray-900">
+                                $${(p.precio_unitario * p.cantidad).toFixed(2)}
+                            </p>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                lista.innerHTML = '<p class="text-red-500 text-center p-4">Error al cargar productos.</p>';
+            }
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalProductos').classList.add('hidden');
+        }
+
+        async function cargarHistorial() {
+            try {
+                const response = await fetch('/historialCompras');
+                const compras = await response.json();
+                const tbody = document.getElementById('tablaCuerpo');
+                
+                tbody.innerHTML = ''; 
+
+                compras.forEach(compra => {
+                    const fechaLegible = new Date(compra.fecha).toLocaleDateString();
+                    
+                    const row = `
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4 text-sm font-medium text-gray-900">#${compra.compra_id}</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">${compra.nombre_usuario}</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">${fechaLegible}</td>
+                            <td class="px-6 py-4 text-sm font-bold text-gray-900 text-right">
+                                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs">
+                                    $${compra.total.toFixed(2)}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-sm font-bold text-gray-900 text-right">
+                                <button 
+                                    onclick="verProductos(${compra.compra_id})" 
+                                    class="inline-flex items-center gap-2 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 px-4 py-2 rounded-lg text-xs font-semibold shadow-sm transition-all duration-200 ease-in-out">
+                                    Ver detalle
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    document.getElementById('tablaCuerpo').innerHTML += row;
+                });
+            } catch (error) {
+                console.error("Error al cargar compras:", error);
+                document.getElementById('tablaCuerpo').innerHTML = `
+                    <tr><td colspan="4" class="px-6 py-4 text-center text-red-500">Error al cargar datos</td></tr>
+                `;
+            }
+        }
+
+        // Ejecutar al cargar la página
+        cargarHistorial();
+    </script>
+</body>
+</html>
