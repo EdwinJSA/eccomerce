@@ -1,11 +1,14 @@
-import sqlite3 from 'sqlite3';
-import { open } from 'sqlite'; // instalamos también: npm install sqlite
+import pg from 'pg';
+import 'dotenv/config'; // Esta es la sintaxis correcta para ES Modules
 
-async function abrirDB() {
-  return open({
-    filename: './ecommerce.db', // Esto crea un archivo llamado ecommerce.db en tu carpeta
-    driver: sqlite3.Database
-  });
-}
+const { Pool } = pg;
 
-export default abrirDB;
+const pool = new Pool({
+  // Se corrigió 'procces.Database_URL' a 'process.env.DATABASE_URL'
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false // Requerido por Render para conexiones externas
+  }
+});
+
+export default pool;
